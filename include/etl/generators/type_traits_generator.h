@@ -111,9 +111,24 @@ namespace etl
   template <typename T, const T VALUE>
   const T integral_constant<T, VALUE>::value;
 
-#if ETL_CPP17_SUPPORTED
+#if ETL_CPP11_SUPPORTED
   template <bool B>
   using bool_constant = integral_constant<bool, B>;
+#else
+  template <bool B>
+  struct bool_constant : etl::integral_constant<bool, B> { };
+#endif
+
+  //***************************************************************************
+  /// negation
+  template <typename T>
+  struct negation : etl::bool_constant<!bool(T::value)>
+  {
+  };
+
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  inline constexpr bool negation_v = negation<T>::value;
 #endif
 
   //***************************************************************************
@@ -787,6 +802,22 @@ namespace etl
 #if ETL_CPP17_SUPPORTED
   template <bool B>
   using bool_constant = std::bool_constant<B>;
+#else
+  template <bool B>
+  struct bool_constant : std::integral_constant<bool, B> { };
+#endif
+
+  //***************************************************************************
+  /// negation
+  ///\ingroup type_traits
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  struct negation : std::negation<T>
+  {
+  };
+
+  template <typename T>
+  inline constexpr bool negation_v = std::negation_v<T>;
 #endif
 
   //***************************************************************************
@@ -1500,7 +1531,7 @@ namespace etl
   };
 #endif
 
-#if ETL_CPP14_SUPPORTED
+#if ETL_CPP11_SUPPORTED
   template <typename T>
   using types_t = typename types<T>::type;
 

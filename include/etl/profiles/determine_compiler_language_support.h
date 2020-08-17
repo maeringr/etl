@@ -61,6 +61,11 @@ SOFTWARE.
   #endif
 #endif
 
+// Helper macros
+#define ETL_CPP11_NOT_SUPPORTED !ETL_CPP11_SUPPORTED
+#define ETL_CPP14_NOT_SUPPORTED !ETL_CPP14_SUPPORTED
+#define ETL_CPP17_NOT_SUPPORTED !ETL_CPP17_SUPPORTED
+
 #if !defined(ETL_NO_NULLPTR_SUPPORT)
   #define ETL_NO_NULLPTR_SUPPORT ETL_CPP11_NOT_SUPPORTED
 #endif
@@ -74,10 +79,8 @@ SOFTWARE.
 #endif
 
 // NAN not defined or Rowley CrossWorks
-#if !defined(NAN) || defined(__CROSSWORKS_ARM)
-  #if !defined(ETL_NO_CPP_NAN_SUPPORT)
-    #define ETL_NO_CPP_NAN_SUPPORT
-  #endif
+#if !defined(NAN) || defined(__CROSSWORKS_ARM) || defined(ETL_COMPILER_ARM5)
+  #define ETL_NO_CPP_NAN_SUPPORT
 #endif
 
 #endif

@@ -99,9 +99,24 @@ namespace etl
   template <typename T, const T VALUE>
   const T integral_constant<T, VALUE>::value;
 
-#if ETL_CPP17_SUPPORTED
+#if ETL_CPP11_SUPPORTED
   template <bool B>
   using bool_constant = integral_constant<bool, B>;
+#else
+  template <bool B>
+  struct bool_constant : etl::integral_constant<bool, B> { };
+#endif
+
+  //***************************************************************************
+  /// negation
+  template <typename T>
+  struct negation : etl::bool_constant<!bool(T::value)>
+  {
+  };
+
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  inline constexpr bool negation_v = negation<T>::value;
 #endif
 
   //***************************************************************************
@@ -775,6 +790,22 @@ namespace etl
 #if ETL_CPP17_SUPPORTED
   template <bool B>
   using bool_constant = std::bool_constant<B>;
+#else
+  template <bool B>
+  struct bool_constant : std::integral_constant<bool, B> { };
+#endif
+
+  //***************************************************************************
+  /// negation
+  ///\ingroup type_traits
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  struct negation : std::negation<T>
+  {
+  };
+
+  template <typename T>
+  inline constexpr bool negation_v = std::negation_v<T>;
 #endif
 
   //***************************************************************************
@@ -1032,11 +1063,12 @@ namespace etl
   //***************************************************************************
   /// is_pod
   ///\ingroup type_traits
-  template <typename T> struct is_pod : std::is_pod<T> {};
+  template <typename T>
+  struct is_pod : std::integral_constant<bool, std::is_standard_layout<T>::value && std::is_trivial<T>::value> {};
 
 #if ETL_CPP17_SUPPORTED
   template <typename T>
-  inline constexpr bool is_pod_v = std::is_pod_v<T>;
+  inline constexpr bool is_pod_v = std::is_standard_layout_v<T> && std::is_trivial_v<T>;
 #endif
 
 #if !defined(ARDUINO) && ETL_NOT_USING_STLPORT
@@ -1493,7 +1525,7 @@ namespace etl
   };
 #endif
 
-#if ETL_CPP14_SUPPORTED
+#if ETL_CPP11_SUPPORTED
   template <typename T>
   using types_t = typename types<T>::type;
 
